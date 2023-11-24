@@ -31,7 +31,7 @@ jobs:
         working-directory: ./back
 
   pushback:
-    needs: buildbackandfront
+    needs: buildback
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -52,7 +52,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/priceapi:latest
 
   trigger-script:
-    needs: buildback
+    needs: pushback
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Script
