@@ -12,15 +12,15 @@ const checkInterval = 10000; // 10 seconds
 const imageName = 'ala91/priceapi';
 
 // Replace with your actual current last pushed release
-let currentRelease = '2023-11-24T16:52:49.517727Z'; 
+let currentRelease = '2023-11-24T17:06:49.06891Z'; 
 
 // Function to check for a new release and trigger deploy.sh
 const checkForNewRelease = async () => {
   try {
     const response = await axios.get(`https://hub.docker.com/v2/repositories/${imageName}/tags/`);
-    const latestRelease = response.data.results[0].images.last_pushed;
+    const latestRelease = response.data.results[0].last_updated;
 
-    console.log(`Current last push: ${currentRelease}`);
+    console.log(`Current last update: ${currentRelease}`);
 
 
     // Compare the latest release with the current release or version
