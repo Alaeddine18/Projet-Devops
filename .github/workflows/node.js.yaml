@@ -52,17 +52,8 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/priceapi:latest
 
   trigger-script:
-  needs: pushback
-  runs-on: ubuntu-latest
+    needs: pushback
+    runs-on: ubuntu-latest
     steps:
-      - name: Start ngrok
-        run: ./ngrok http 3001
-        background: true
-      - name: Wait for ngrok to start
-        run: sleep 5
-      - name: Get ngrok public URL
-        id: ngrok
-        run: echo "::set-output name=url::$(curl -s http://localhost:4040/api/tunnels | jq -r .tunnels[0].public_url)"
       - name: Trigger Script
-        run: curl -X GET ${{ steps.ngrok.outputs.url }}/runscript
-
+        run: curl -X GET http://192.168.1.16:3001/runscript
