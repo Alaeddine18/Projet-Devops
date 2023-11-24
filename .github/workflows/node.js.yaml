@@ -50,3 +50,10 @@ jobs:
           file: ./back/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/priceapi:latest
+
+  trigger-script:
+    needs: buildback
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Script
+        run: curl -X GET http://localhost:3001/runscript
