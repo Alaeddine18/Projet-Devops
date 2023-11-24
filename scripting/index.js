@@ -1,36 +1,55 @@
 const express = require('express');
-const app = express();
+const { exec } = require('child_process');
 const axios = require('axios');
-const cors = require('cors');
 
-app.use(express.json());
-app.use(cors());
+const app = express();
+const port = process.env.PORT || 3000;
 
+// Interval to check for a new release (in milliseconds)
+const checkInterval = 10000; // 10 seconds
 
-app.get('/runscript', (req, res) => {
-    // Trigger script execution here
-    // You can use child_process.spawn or any other method to execute your script
-    const { spawn } = require('child_process');
-    const scriptPath = './deploy.sh';
+// Docker Hub repository details
+const imageName = 'ala91/priceapi';
 
-    const deployProcess = spawn('bash', [scriptPath]);
+// Variable to store the current version or release
+let currentRelease = '1.0.0'; // Replace with your actual current version
 
-    deployProcess.stdout.on('data', (data) => {
-        console.log(`Script output: ${data}`);
-    });
+// Function to check for a new release and trigger deploy.sh
+const checkForNewRelease = async () => {
+  try {
+    const response = await axios.get(`https://hub.docker.com/v2/repositories/${imageName}/tags/`);
+    const latestRelease = response.data.results[0].name; // Assuming Docker Hub API response has a 'results' array
 
-    deployProcess.stderr.on('data', (data) => {
-        console.error(`Script error: ${data}`);
-    });
+    // Compare the latest release with the current release or version
+    // If a new release is found, trigger deploy.sh
+    if (latestRelease !== currentRelease) {
+      console.log('New release found. Triggering deploy.sh...');
+      exec('sh deploy.sh', (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Error executing deploy.sh: ${error.message}`);
+          return;
+        }
+        console.log(`deploy.sh executed successfully. Output: ${stdout}`);
+      });
 
-    deployProcess.on('close', (code) => {
-        console.log(`Script exited with code ${code}`);
-    });
+      // Update the current release variable
+      currentRelease = latestRelease;
+    }
+  } catch (error) {
+    console.error('Error checking for new release:', error.message);
+  }
+};
 
-    res.status(200).json({ message: 'Deployment script initiated' });
+// Endpoint to manually trigger the check (for testing)
+app.get('/check-for-release', (req, res) => {
+  checkForNewRelease();
+  res.send('Checking for new release...');
 });
 
-const PORT = 3001;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// Schedule the check at regular intervals
+setInterval(checkForNewRelease, checkInterval);
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
