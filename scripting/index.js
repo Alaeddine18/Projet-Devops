@@ -24,12 +24,22 @@ const checkForNewRelease = async () => {
     // If a new release is found, trigger deploy.sh
     if (latestRelease !== currentRelease) {
       console.log('New release found. Triggering deploy.sh...');
-      exec('sh deploy.sh', (error, stdout, stderr) => {
-        if (error) {
-          console.error(`Error executing deploy.sh: ${error.message}`);
+
+      // Set execute permissions for deploy.sh
+      exec('chmod +x deploy.sh', (error1, stdout1, stderr1) => {
+        if (error1) {
+          console.error(`Error executing chmod +x deploy.sh: ${error1.message}`);
           return;
         }
-        console.log(`deploy.sh executed successfully. Output: ${stdout}`);
+
+        // Execute deploy.sh
+        exec('./deploy.sh', (error2, stdout2, stderr2) => {
+          if (error2) {
+            console.error(`Error executing ./deploy.sh: ${error2.message}`);
+            return;
+          }
+          console.log(`deploy.sh executed successfully. Output: ${stdout2}`);
+        });
       });
 
       // Update the current release variable
