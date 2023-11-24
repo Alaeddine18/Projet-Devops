@@ -18,9 +18,10 @@ let currentRelease = '2023-11-24T16:52:49.517727Z';
 const checkForNewRelease = async () => {
   try {
     const response = await axios.get(`https://hub.docker.com/v2/repositories/${imageName}/tags/`);
-    const latestRelease = response.data.results[0].last_pushed;
+    const latestRelease = response.data.results[0].images.last_pushed;
 
-    console.log(`${latestRelease}`);
+    console.log(`Current last push: ${currentRelease}`);
+
 
     // Compare the latest release with the current release or version
     // If a new release is found, trigger deploy.sh
