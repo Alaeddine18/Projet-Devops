@@ -6,6 +6,8 @@ const cors = require('cors'); // Ajout du middleware CORS
 app.use(express.json());
 app.use(cors()); // Utilisation du middleware CORS pour autoriser les requêtes depuis tous les domaines
 
+
+// de base y'a un front mais j'ai laissé tomber
 app.get('/price', async (req, res) => {
     const { token } = req.query;
     try {
